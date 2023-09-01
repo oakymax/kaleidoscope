@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/two.js/0.8.11/two.min.js"></script>
+    <script src="two.js"></script>
 </head>
 <body>
 <script>
@@ -11,10 +11,72 @@
         autostart: true
     }).appendTo(document.body);
 
-    var rect = two.makeRectangle(two.width / 2, two.height / 2, 50 ,50);
+    var R = 50;
+    var ta = R * Math.sqrt(3);
+    var r = ta * Math.sqrt(3) / 6;
+    var th = ta * Math.sqrt(3) / 2;
+
+    var w = two.width;
+    var h = two.height;
+    var cx = two.width / 2;
+    var cy = two.height / 2;
+
+    var background = two.makeRectangle(cx, cy, w, h);
+    background.fill = '#000000';
+
+    var circle = two.makeCircle(cx, cy, R + 10, 50);
+    circle.fill = '#00BFFF';
+    circle.linewidth = 5;
+    circle.stroke = '#FFFFFF';
+
+    var circleSegment = makeCirclePart(R + 10, Math.PI / 10, 11 * Math.PI / 10, 50);
+    circleSegment.stroke = '#FFFFFF';
+    circleSegment.linewidth = 5;
+    circleSegment.fill = '#0000FF';
+    circleSegment.position.set(cx, cy);
+    two.add(circleSegment);
+
+    var triangle = makeTriangle(two, ta);
+
+    triangle.position.set(cx, cy);
+    triangle.fill = '#FF0000';
+    triangle.linewidth = 5;
+    triangle.stroke = '#FFFFFF';
+
     two.bind('update', function() {
-        rect.rotation += 0.001;
+        triangle.rotation += 0.01;
+        circleSegment.rotation -= 0.001;
     });
+
+    function makeTriangle(two, side) {
+        let th = ta * Math.sqrt(3) / 2;
+        let triangle = two.makePath(-side/2, 0, 0, th, side/2, 0);
+
+        var offset = new Two.Vector(0, th/2 - r);
+        for (var i = 0; i < triangle.vertices.length; i++) {
+            var v = triangle.vertices[i];
+            v.add(offset);
+        }
+
+        return triangle;
+    }
+
+    function makeCirclePart(radius, angleA, angleB, resolution)
+    {
+        let verticles = [new Two.Anchor(radius * Math.cos(angleA), radius * Math.sin(angleA))];
+
+        for (i = 1; i < resolution; i++)
+        {
+            let currentAngle = angleA + i * (angleB - angleA) / resolution;
+            verticles.push(new Two.Anchor(radius * Math.cos(currentAngle), radius * Math.sin(currentAngle)));
+        }
+
+        let figure = new Two.Path(verticles);
+        figure.closed = true;
+        figure.automatic = true;
+
+        return figure;
+    }
 </script>
 </body>
 </html>
